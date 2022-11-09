@@ -1,0 +1,21 @@
+{
+  "name": "projeto13-batepapo-uol-api",
+  "version": "1.0.0",
+  "description": "A back end project to make an API for BatePapo UOL",
+  "type": "module",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx nodemon src/app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AkoruuDev/bate-papo-uol-back-end.git"
+  },
+  "author": "Akoruu Dev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AkoruuDev/bate-papo-uol-back-end/issues"
+  },
+  "homepage": "https://github.com/AkoruuDev/bate-papo-uol-back-end#readme"
+}
