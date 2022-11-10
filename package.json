@@ -17,5 +17,10 @@
   "bugs": {
     "url": "https://github.com/AkoruuDev/bate-papo-uol-back-end/issues"
   },
-  "homepage": "https://github.com/AkoruuDev/bate-papo-uol-back-end#readme"
+  "homepage": "https://github.com/AkoruuDev/bate-papo-uol-back-end#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mongodb": "^4.11.0"
+  }
 }
