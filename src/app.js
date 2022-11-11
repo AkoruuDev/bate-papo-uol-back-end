@@ -22,7 +22,8 @@ try {
 }
 
 // collections
-const collectionUsers = db.collection('users')
+const collectionUsers = db.collection('users');
+const collectionChat = db.collection('chat');
 
 // routes
 app.post('/participants', async (req, res) => {
@@ -39,11 +40,11 @@ app.post('/participants', async (req, res) => {
     const { error } = newUser.validate(name);
 
     if (error) {
-        res.status(422).send(error.details);
+        res.sendStatus(422).send(error.details);
         return;
     }
 
-    thereIsName = collectionUsers.find(user => {
+    let thereIsName = collectionUsers.find(user => {
         if (user.name === newUser.name) {
             return true;
         }
@@ -51,13 +52,14 @@ app.post('/participants', async (req, res) => {
     })
 
     if (thereIsName) {
-        res.status(409).send('Este usuário já existe');
+        res.sendStatus(409).send('Este usuário já existe');
         return;
     }
 
     try {
-        await collectionUsers.insertOne(newUser);
-        res.status(201).send(`Cadastro concluido. Bem vind@ ${newUser.name}`);
+        await collectionUsers.insertOne({ name: newUser.name, lastStatus: Date.now() });
+        await collectionChat.insertOne({from: newUser.name, to: 'Todos', text: 'entra na sala...', type: 'status', time: dayjs().format('HH:mm:ss')});
+        res.sendStatus(201).send(`Cadastro concluido. Bem vind@ ${newUser.name}`);
     } catch (err) {
         res.sendStatus(500).send('Erro')
     }
