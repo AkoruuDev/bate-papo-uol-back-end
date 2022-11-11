@@ -1,5 +1,4 @@
 import express from "express";
-// import cors from "cors";  --- ininstall cors
 import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
 import Joi from "joi";
@@ -8,7 +7,6 @@ import dayjs from "dayjs";
 const app = express();
 
 // config
-// app.use(cors());
 dotenv.config();
 app.use(express.json());
 const mongoClient = new MongoClient(process.env.MONGO_URI);
