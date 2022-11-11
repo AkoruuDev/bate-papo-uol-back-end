@@ -3,6 +3,7 @@ import express from "express";
 import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
 import Joi from "joi";
+import dayjs from "dayjs";
 
 const app = express();
 
@@ -65,8 +66,13 @@ app.post('/participants', async (req, res) => {
     }
 });
 
-app.get('/participants', (req, res) => {
-
+app.get('/participants', async (req, res) => {
+    try {
+        const response = await collectionUsers.find().toArray()
+        res.send(response);
+    } catch (err) {
+        res.sendStatus(500).send(err);
+    }
 });
 
 app.post('/messages', (req, res) => {
