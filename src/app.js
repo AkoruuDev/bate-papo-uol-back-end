@@ -1,12 +1,14 @@
 import express from "express";
-import cors from "cors";
+// import cors from "cors";  --- ininstall cors
+import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
 import Joi from "joi";
 
 const app = express();
 
 // config
-app.use(cors());
+// app.use(cors());
+dotenv.config();
 app.use(express.json());
 const mongoClient = new MongoClient(process.env.MONGO_URI);
 let db;
@@ -19,9 +21,13 @@ try {
     console.log(err);
 }
 
+// collections
+const collectionUsers = db.collection('users')
+
 // routes
-app.post('/participants', (req, res) => {
+app.post('/participants', async (req, res) => {
     const name = req.body;
+    console.log(name)
 
     const newUser = Joi.object({
         name: Joi
@@ -30,14 +36,14 @@ app.post('/participants', (req, res) => {
                 .required()
     }).options({ abortEarly: false });
   
-    const response = newUser.validate(name);
+    const { error } = newUser.validate(name);
 
-    if (response.error) {
-        res.status(422).send(response.error.details);
+    if (error) {
+        res.status(422).send(error.details);
         return;
     }
 
-    thereIsName = db.collection('users').find(user => {
+    thereIsName = collectionUsers.find(user => {
         if (user.name === newUser.name) {
             return true;
         }
@@ -49,8 +55,12 @@ app.post('/participants', (req, res) => {
         return;
     }
 
-    db.collection('users').insert(newUser);
-    res.status(201).send(`Cadastro concluido. Bem vind@ ${newUser.name}`);
+    try {
+        await collectionUsers.insertOne(newUser);
+        res.status(201).send(`Cadastro concluido. Bem vind@ ${newUser.name}`);
+    } catch (err) {
+        res.sendStatus(500).send('Erro')
+    }
 });
 
 app.get('/participants', (req, res) => {
