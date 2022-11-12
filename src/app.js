@@ -91,11 +91,15 @@ app.post('/messages', async (req, res) => {
         return;
     }
 
-    // const from = await collectionUsers.findOne({ name: user });
-    //console.log(from);
+    const from = await collectionUsers.findOne({ name: user });
+
+    if (from === null) {
+        res.status(422).send('Remetente inválido');
+        return;
+    }
 
     try {
-        await collectionChat.insertOne({ to, from, type, text, time: dayjs().format('HH:mm:ss') });
+        await collectionChat.insertOne({ to, from: from.name, type, text, time: dayjs().format('HH:mm:ss') });
         res.status(201).send('Mensagem enviada com sucesso')
     } catch (err) {
         res.status(500).send('Erro');
