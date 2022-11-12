@@ -95,8 +95,8 @@ app.post('/messages', async (req, res) => {
         return;
     }
 
-    const from = await collectionUsers.findOne({ name: user });
-    console.log(from);
+    // const from = await collectionUsers.findOne({ name: user });
+    //console.log(from);
 
     try {
         await collectionChat.insertOne({ to, from, type, text, time: dayjs().format('HH:mm:ss') });
@@ -126,8 +126,25 @@ app.get('/messages', async (req, res) => {
     }
 });
 
-app.post('/status', (req, res) => {
+app.post('/status', async (req, res) => {
+    const { user } = req.headers;
 
+    try {
+        const findUser = await collectionUsers.findOne({ name: user })
+        console.log(findUser)
+        if(!findUser) {
+            res.sendStatus(404);
+            return;
+        }
+
+        collectionUsers.updateOne({lastStatus: findUser.lastStatus}, { $set: Date.now() });
+        res.sendStatus(201)
+    } catch (err) {
+
+    }
+    findUser.lastStatus = Date.now();
+
+    res.send(findUser)
 });
 
 
