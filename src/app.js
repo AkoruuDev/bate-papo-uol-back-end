@@ -39,28 +39,26 @@ app.post('/participants', async (req, res) => {
     const { error } = userSchema.validate(name);
 
     if (error) {
-        res.sendStatus(422).send(error.details);
+        res.status(422).send(error.details);
         return;
     }
 
-    let thereIsName = collectionUsers.find(user => {
-        if (user.name === userSchema.name) {
-            return true;
-        }
-        return false;
-    })
+    const thereIsName = await collectionUsers.findOne({ name: name }).then(() => {return true;}).catch(() => {return false;});
 
-    if (thereIsName) {
-        res.sendStatus(409).send('Este usuário já existe');
+    console.log(thereIsName)
+    console.log(name)
+
+    if (thereIsName !== null) {
+        res.status(409).send('Este usuário já existe');
         return;
     }
 
     try {
-        await collectionUsers.insertOne({ name: userSchema.name, lastStatus: Date.now() });
-        await collectionChat.insertOne({from: userSchema.name, to: 'Todos', text: 'entra na sala...', type: 'status', time: dayjs().format('HH:mm:ss')});
-        res.sendStatus(201).send(`Cadastro concluido. Bem vind@ ${userSchema.name}`);
+        await collectionUsers.insertOne({ name: name.name, lastStatus: Date.now() });
+        await collectionChat.insertOne({from: name.name, to: 'Todos', text: 'entra na sala...', type: 'status', time: dayjs().format('HH:mm:ss')});
+        res.status(201).send(`Cadastro concluido. Bem vind@ ${name.name}`);
     } catch (err) {
-        res.sendStatus(500).send('Erro')
+        res.status(500).send('Erro')
     }
 });
 
@@ -69,13 +67,13 @@ app.get('/participants', async (req, res) => {
         const response = await collectionUsers.find().toArray()
         res.send(response);
     } catch (err) {
-        res.sendStatus(500).send(err);
+        res.status(500).send(err);
     }
 });
 
 app.post('/messages', async (req, res) => {
     const { to, text, type } = req.body;
-    const { from } = req.header.User;
+    const { user } = req.headers;
 
     const messSchema = Joi.object({
         to: Joi
@@ -87,22 +85,24 @@ app.post('/messages', async (req, res) => {
         type: Joi
                 .string()
                 .valid('message')
-                .valid('private_message'),
-        from: Joi.bool(true) // Learn how validate a true boolean value (Make that using MONGODB functions)
+                .valid('private_message')
     });
 
     const { error } = messSchema.validate({ to, text, type })
 
     if (error) {
-        res.sendStatus(422).send(error.details);
+        res.status(422).send(error.details);
         return;
     }
 
+    const from = await collectionUsers.findOne({ name: user });
+    console.log(from);
+
     try {
         await collectionChat.insertOne({ to, from, type, text, time: dayjs().format('HH:mm:ss') });
-        res.sendStatus(201).send('Mensagem enviada com sucesso')
+        res.status(201).send('Mensagem enviada com sucesso')
     } catch (err) {
-        res.sendStatus(500).send('Erro');
+        res.status(500).send('Erro');
     }
 });
 
