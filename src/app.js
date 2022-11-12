@@ -106,8 +106,24 @@ app.post('/messages', async (req, res) => {
     }
 });
 
-app.get('/messages', (req, res) => {
+app.get('/messages', async (req, res) => {
+    const { limit } = req.query;
+    const { user } = req.headers;
 
+    try {
+        const response = await collectionChat.find().toArray();
+
+        const messages = response.filter(mes => mes.to === "Todos" || mes.to === user || mes.from === user);
+
+        if (limit) {
+            const nlimit = Number(limit)
+            res.send(messages.slice(-nlimit));
+        } else {
+            res.send(messages);
+        }
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 app.post('/status', (req, res) => {
