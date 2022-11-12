@@ -27,7 +27,6 @@ const collectionChat = db.collection('chat');
 // routes
 app.post('/participants', async (req, res) => {
     const name = req.body;
-    console.log(name)
 
     const userSchema = Joi.object({
         name: Joi
@@ -43,12 +42,9 @@ app.post('/participants', async (req, res) => {
         return;
     }
 
-    const thereIsName = await collectionUsers.findOne({ name: name }).then(() => {return true;}).catch(() => {return false;});
+    const thereIsName = await collectionUsers.findOne({ name: name.name });
 
-    console.log(thereIsName)
-    console.log(name)
-
-    if (thereIsName !== null) {
+    if (thereIsName) {
         res.status(409).send('Este usuário já existe');
         return;
     }
