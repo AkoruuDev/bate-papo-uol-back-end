@@ -24,6 +24,33 @@ try {
 const collectionUsers = db.collection('users');
 const collectionChat = db.collection('chat');
 
+// Status online
+const validadeUserOnline = async () => {
+    const newArray = await collectionUsers.find().toArray();
+    newArray.forEach(async user => {
+        const refactor = new Date(user.lastStatus).toString();
+        const seconds = Number(refactor.slice(22, 24))
+        const data = new Date(Date.now()).toString();
+        const dataRef = Number(data.slice(22,24))
+        
+        if (seconds < 45) {
+            if ((seconds + 10) < dataRef) {
+                await collectionUsers.deleteOne({ _id: new Object(user._id) });
+                await collectionChat.insertOne({from: user.name, to: 'Todos', text: 'sai da sala...', type: 'status', time: dayjs().format('HH:mm:ss') });
+            }
+        } else {
+            if (((seconds + 10) - 60) < dataRef) {
+                await collectionUsers.deleteOne({ _id: new Object(user._id) });
+                await collectionChat.insertOne({from: user.name, to: 'Todos', text: 'sai da sala...', type: 'status', time: dayjs().format('HH:mm:ss') });
+            }
+        }
+    });
+}
+
+setInterval(() => {
+    validadeUserOnline();
+}, 15000)
+
 // routes
 app.post('/participants', async (req, res) => {
     const name = req.body;
