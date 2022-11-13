@@ -128,23 +128,21 @@ app.get('/messages', async (req, res) => {
 
 app.post('/status', async (req, res) => {
     const { user } = req.headers;
-
+    
     try {
-        const findUser = await collectionUsers.findOne({ name: user })
-        console.log(findUser)
-        if(!findUser) {
+        const userFound = await collectionUsers.findOne({ name: user })
+
+        if(userFound === null) {
             res.sendStatus(404);
             return;
         }
 
-        collectionUsers.updateOne({lastStatus: findUser.lastStatus}, { $set: Date.now() });
-        res.sendStatus(201)
+        const newTimeUser = {name: user, lastStatus: Date.now()}
+        collectionUsers.updateOne({_id: new Object(userFound._id)}, { $set: newTimeUser});
+        res.sendStatus(200)
     } catch (err) {
-
+        res.sendStatus(500)
     }
-    findUser.lastStatus = Date.now();
-
-    res.send(findUser)
 });
 
 
